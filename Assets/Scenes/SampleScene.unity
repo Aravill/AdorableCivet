@@ -385,7 +385,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1400287336}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 9c37571a92a6ab046ba5f55a643c60e2, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -524,7 +524,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 307017919896262751, guid: 03d5ed827fccf514aa9cc74dc19a942f, type: 3}
       propertyPath: maxSpeed
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 307017919896262751, guid: 03d5ed827fccf514aa9cc74dc19a942f, type: 3}
       propertyPath: jumpSpeed
@@ -535,8 +535,12 @@ PrefabInstance:
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 307017919896262751, guid: 03d5ed827fccf514aa9cc74dc19a942f, type: 3}
+      propertyPath: groundDrag
+      value: 4.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 307017919896262751, guid: 03d5ed827fccf514aa9cc74dc19a942f, type: 3}
       propertyPath: acceleration
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2407940029673587810, guid: 03d5ed827fccf514aa9cc74dc19a942f, type: 3}
       propertyPath: m_LocalPosition.x
