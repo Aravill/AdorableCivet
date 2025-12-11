@@ -67,5 +67,8 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "AdorableCivet.slnx"
+    "dotnet.defaultSolution": "AdorableCivet.slnx",
+    "cSpell.words": [
+      "Rigidbody"
+    ]
 }
