@@ -3,9 +3,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-  [Header("Misc")]
-  private CharacterController _charController;
-
   [Header("Camera Settings")]
   [SerializeField] private Camera playerCamera;
   [SerializeField] private float mouseSensitivity = 100f;
@@ -13,14 +10,21 @@ public class PlayerMovement : MonoBehaviour
 
 
   [Header("Movement Settings")]
-  [SerializeField] private float acceleration = 0.2f;
-  [SerializeField] private float deceleration = 0.2f;
-  [SerializeField] private float maxMoveSpeed = 1f;
+  [SerializeField] private float acceleration = 3f;
+  [SerializeField] private float maxSpeed = 5f;
+  [SerializeField] private float jumpForce = 10f;
+  [SerializeField] private float groundDrag = 3f;
+  [SerializeField] private float airDrag = 2.5f;
 
   private PlayerInputActions _actions;
   private InputAction _movementAction;
-  private float gravity = 9.81f;
+  private InputAction _jumpAction;
 
+  private Collider _collider;
+
+  private Rigidbody _rigidbody;
+  private float gravity = 9.81f;
+  private bool grounded = false;
   private float xRotation = 0f;
 
   void Start()
@@ -31,15 +35,22 @@ public class PlayerMovement : MonoBehaviour
 
   void Awake()
   {
-    _charController = GetComponent<CharacterController>();
     _actions = new PlayerInputActions();
     _movementAction = _actions.Movement.Move;
+    _jumpAction = _actions.Movement.Jump;
+    _rigidbody = GetComponent<Rigidbody>();
+    _rigidbody.freezeRotation = true;
+    _collider = GetComponent<Collider>();
   }
 
   void Update()
   {
+    CheckGrounded();
     HandleMouseLook();
-    HandleMovement();
+    HandleHorizontalMovement();
+    HandleJump();
+    HandleDrag();
+    Debug.Log(grounded ? "Grounded" : "Airborne");
   }
 
   private void OnEnable()
@@ -52,40 +63,83 @@ public class PlayerMovement : MonoBehaviour
     _actions.Movement.Disable();
   }
 
-  private void HandleMovement()
+  private void HandleJump()
+  {
+    if (grounded && _jumpAction.triggered)
+    {
+      _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+  }
+  private void HandleHorizontalMovement()
   {
     Vector2 input = _movementAction.ReadValue<Vector2>();
+    Vector3 cameraDirection = playerCamera.transform.right * input.x + playerCamera.transform.forward * input.y;
 
-    Vector3 forward = playerCamera.transform.forward;
-    Vector3 right = playerCamera.transform.right;
+    // Prevent vertical movement
+    cameraDirection.y = 0;
+    cameraDirection.Normalize();
 
-    forward.y = 0;
-    right.y = 0;
-
-    forward.Normalize();
-    right.Normalize();
-
-    Vector3 targetDirection = (forward * input.y + right * input.x).normalized;
-    Vector3 targetVelocity = targetDirection * maxMoveSpeed;
-
-    if (input.magnitude > 0)
+    Vector3 horizontalVelocity = new Vector3(_rigidbody.linearVelocity.x, 0, _rigidbody.linearVelocity.z);
+    Vector3 verticalVelocity = new Vector3(0, _rigidbody.linearVelocity.y, 0);
+    // Handle horizontal movement
+    if (input.magnitude > 0.1f && horizontalVelocity.magnitude < maxSpeed)
     {
-      // Accelerate towards target velocity
-      targetDirection = Vector3.MoveTowards(_charController.velocity, targetVelocity, acceleration * Time.deltaTime);
+      float remainingVelocity = maxSpeed - horizontalVelocity.magnitude;
+      // Cap the force so we don't exceed max speed
+      float forceToApply = Mathf.Min(acceleration, remainingVelocity);
+      // Apply horizontal movement force
+      _rigidbody.AddForce(cameraDirection * forceToApply, ForceMode.Force);
+    }
+
+    // Handle gravity separately
+    if (!grounded && verticalVelocity.y < gravity)
+    {
+      float remainingVelocity = gravity - verticalVelocity.magnitude;
+      // Cap the force so we don't exceed max speed
+      float forceToApply = Mathf.Min(gravity, remainingVelocity);
+      _rigidbody.AddForce(Vector3.down * forceToApply, ForceMode.Force);
+    }
+  }
+
+
+  private void CheckGrounded()
+  {
+    RaycastHit hit;
+
+    // Start raycast from bottom of player, not center
+    Vector3 rayOrigin = transform.position;
+    rayOrigin.y = _collider.bounds.min.y + 0.1f; // Slightly above the bottom of the collider
+    Debug.Log("Ray Origin: " + rayOrigin);
+
+    int layerMask = ~(1 << gameObject.layer); // Exclude player's own layer
+    // Cast ray slightly longer than needed
+    if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 0.11f, layerMask))
+    {
+      if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
+      {
+        grounded = true;
+      }
+      else
+      {
+        grounded = false;
+      }
     }
     else
     {
-      // Decelerate to a stop
-      targetDirection = Vector3.MoveTowards(_charController.velocity, Vector3.zero, deceleration * Time.deltaTime);
+      grounded = false;
     }
+  }
 
-    if (!_charController.isGrounded)
+  private void HandleDrag()
+  {
+    if (grounded)
     {
-      Vector3 gravityVector = Vector3.down * gravity * Time.deltaTime;
-      targetDirection += gravityVector;
+      _rigidbody.linearDamping = groundDrag;
     }
-
-    _charController.Move(targetDirection);
+    else
+    {
+      _rigidbody.linearDamping = airDrag;
+    }
   }
   private void HandleMouseLook()
   {
