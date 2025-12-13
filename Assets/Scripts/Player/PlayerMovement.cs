@@ -23,9 +23,9 @@ public class PlayerMovement : MonoBehaviour
   private Collider _collider;
 
   private Rigidbody _rigidbody;
-  private float gravity = 9.81f;
-  private bool grounded = false;
-  private float xRotation = 0f;
+  private float _gravity = 9.81f;
+  private bool _grounded = false;
+  private float _xRotation = 0f;
 
   void Start()
   {
@@ -50,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
     HandleHorizontalMovement();
     HandleJump();
     HandleDrag();
-    Debug.Log(grounded ? "Grounded" : "Airborne");
   }
 
   private void OnEnable()
@@ -65,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
   private void HandleJump()
   {
-    if (grounded && _jumpAction.triggered)
+    if (_grounded && _jumpAction.triggered)
     {
       _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
@@ -92,11 +91,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Handle gravity separately
-    if (!grounded && verticalVelocity.y < gravity)
+    if (!_grounded && verticalVelocity.y < _gravity)
     {
-      float remainingVelocity = gravity - verticalVelocity.magnitude;
+      float remainingVelocity = _gravity - verticalVelocity.magnitude;
       // Cap the force so we don't exceed max speed
-      float forceToApply = Mathf.Min(gravity, remainingVelocity);
+      float forceToApply = Mathf.Min(_gravity, remainingVelocity);
       _rigidbody.AddForce(Vector3.down * forceToApply, ForceMode.Force);
     }
   }
@@ -104,35 +103,12 @@ public class PlayerMovement : MonoBehaviour
 
   private void CheckGrounded()
   {
-    RaycastHit hit;
-
-    // Start raycast from bottom of player, not center
-    Vector3 rayOrigin = transform.position;
-    rayOrigin.y = _collider.bounds.min.y + 0.1f; // Slightly above the bottom of the collider
-    Debug.Log("Ray Origin: " + rayOrigin);
-
-    int layerMask = ~(1 << gameObject.layer); // Exclude player's own layer
-    // Cast ray slightly longer than needed
-    if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 0.11f, layerMask))
-    {
-      if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
-      {
-        grounded = true;
-      }
-      else
-      {
-        grounded = false;
-      }
-    }
-    else
-    {
-      grounded = false;
-    }
+    _grounded = GroundChecker.IsGrounded(transform, _collider, LayerMask.NameToLayer("Player"));
   }
 
   private void HandleDrag()
   {
-    if (grounded)
+    if (_grounded)
     {
       _rigidbody.linearDamping = groundDrag;
     }
@@ -145,7 +121,6 @@ public class PlayerMovement : MonoBehaviour
   {
     if (playerCamera == null)
     {
-      Debug.Log("PlayerMovement: No camera assigned for mouse look.");
       return;
     }
 
@@ -157,8 +132,8 @@ public class PlayerMovement : MonoBehaviour
     transform.Rotate(Vector3.up * mouseX);
 
     // Rotate camera vertically with clamping to prevent over-rotation
-    xRotation -= mouseY;
-    xRotation = Mathf.Clamp(xRotation, -maxLookUpAngle, maxLookUpAngle);
-    playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    _xRotation -= mouseY;
+    _xRotation = Mathf.Clamp(_xRotation, -maxLookUpAngle, maxLookUpAngle);
+    playerCamera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
   }
 }

@@ -70,5 +70,9 @@
     "dotnet.defaultSolution": "AdorableCivet.slnx",
     "cSpell.words": [
       "Rigidbody"
+    ],
+    "cSpell.ignoreWords": [
+      "Cooldown",
+      "knockback"
     ]
 }

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4115501477234359132}
   - component: {fileID: 4457775418097666114}
+  - component: {fileID: 5914192862775053164}
   m_Layer: 0
   m_Name: Sword
   m_TagString: Untagged
@@ -54,6 +55,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.17488885, y: 2.134546, z: 0.0776051}
   m_Center: {x: 0.0054046363, y: 1.2050227, z: 0.000000014901161}
+--- !u!114 &5914192862775053164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6649570302605874959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7981a3e27e0d8f0428ab060aad6d8a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  playerAttack: {fileID: 0}
+  damage: 10
+  knockbackForce: 5
 --- !u!1001 &4645264075999881423
 PrefabInstance:
   m_ObjectHideFlags: 0
