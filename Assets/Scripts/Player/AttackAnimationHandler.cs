@@ -4,9 +4,19 @@ public class AttackAnimationHandler : MonoBehaviour
 {
   [SerializeField] private PlayerAttack playerAttack;
 
-  public void OnAttackComplete()
+  public void AttackStarted()
   {
     if (playerAttack != null)
-      playerAttack.OnAttackComplete();
+      playerAttack.AttackStarted();
+  }
+  public void AttackCompleted()
+  {
+    if (playerAttack != null)
+      playerAttack.AttackCompleted();
+  }
+  public void AnimationCompleted()
+  {
+    if (playerAttack != null)
+      playerAttack.AnimationCompleted();
   }
 }

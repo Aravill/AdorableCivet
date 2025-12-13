@@ -11,12 +11,13 @@ public class EnemyController : MonoBehaviour
   [SerializeField] private float flashDuration = 0.1f;
   [SerializeField] private AnimationCurve flashCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
   [SerializeField] private float damageCooldown = 1f;
-
+  [SerializeField] private GameObject damageParticlesObject;
+  private ParticleSystem _damageParticleSystem;
   private bool _canTakeDamage = true;
   private Renderer _renderer;
   private Material _material;
 
-  private ParticleSystem _damageParticleSystem;
+
 
   [Header("Rigidbody Settings")]
   private Rigidbody _rigidbody;
@@ -28,7 +29,7 @@ public class EnemyController : MonoBehaviour
     _renderer = GetComponent<Renderer>();
     _rigidbody = GetComponent<Rigidbody>();
     _collider = GetComponent<Collider>();
-    _damageParticleSystem = GetComponent<ParticleSystem>();
+    _damageParticleSystem = damageParticlesObject.GetComponent<ParticleSystem>();
     if (_renderer != null)
     {
       // Create material instance to avoid affecting other enemies
@@ -54,15 +55,29 @@ public class EnemyController : MonoBehaviour
     StartCoroutine(DamageCooldown());
     if (knockbackForce > 0f)
     {
-      if (_rigidbody != null)
-      {
-        _rigidbody.AddForce(knockbackDirection.normalized * knockbackForce, ForceMode.Impulse);
-      }
+      Knockback(knockbackDirection, knockbackForce);
     }
-    _damageParticleSystem.Play();
+    DamageParticles(knockbackDirection);
     if (health < 1)
     {
       Die();
+    }
+  }
+
+  private void DamageParticles(Vector3 direction)
+  {
+    if (_damageParticleSystem != null)
+    {
+      _damageParticleSystem.transform.rotation = Quaternion.LookRotation(direction);
+      _damageParticleSystem.Play();
+    }
+  }
+
+  private void Knockback(Vector3 knockbackDirection, float knockbackForce)
+  {
+    if (_rigidbody != null)
+    {
+      _rigidbody.AddForce(knockbackDirection.normalized * knockbackForce, ForceMode.Impulse);
     }
   }
 

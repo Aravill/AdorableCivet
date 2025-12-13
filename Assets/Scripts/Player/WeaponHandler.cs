@@ -21,13 +21,11 @@ public class WeaponHandler : MonoBehaviour
 
   public void Attack()
   {
-    Debug.Log("Weapon Attack Triggered");
     _collider.enabled = true;
   }
 
   public void EndAttack()
   {
-    Debug.Log("Weapon Attack Ended");
     _collider.enabled = false;
   }
 

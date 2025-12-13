@@ -14,7 +14,7 @@ public class PlayerAttack : MonoBehaviour
   {
     if (Mouse.current.leftButton.isPressed && !isAttacking)
     {
-      Attack();
+      StartAnimation();
     }
   }
 
@@ -22,18 +22,24 @@ public class PlayerAttack : MonoBehaviour
   {
 
   }
-
-  private void Attack()
+  private void StartAnimation()
   {
     isAttacking = true;
     weaponAnimator.SetBool("isAttacking", true);
-    weaponHandler.Attack();
   }
 
-  public void OnAttackComplete()
+  public void AnimationCompleted()
   {
     isAttacking = false;
     weaponAnimator.SetBool("isAttacking", false);
+  }
+
+  public void AttackStarted()
+  {
+    weaponHandler.Attack();
+  }
+  public void AttackCompleted()
+  {
     weaponHandler.EndAttack();
   }
 }
